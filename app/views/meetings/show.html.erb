@@ -1,0 +1,192 @@
+<div class="max-w-6xl mx-auto">
+  <div class="bg-white rounded-2xl shadow-xl overflow-hidden border border-gray-100 mb-8">
+    <div class="bg-gradient-to-r from-purple-900 to-rose-800 px-8 py-6 text-white">
+      <div class="flex items-start justify-between mb-4">
+        <div class="flex-1">
+          <h2 class="text-3xl font-bold mb-2"><%= @meeting.title %></h2>
+          <div class="flex flex-wrap items-center gap-4 text-purple-100">
+            <span class="flex items-center gap-2 text-lg">
+              <span>📅</span>
+              <%= @meeting.date.strftime("%A, %d de %B de %Y") %>
+            </span>
+            <% if @meeting.location.present? %>
+              <span class="flex items-center gap-2 text-lg">
+                <span>📍</span>
+                <%= @meeting.location %>
+              </span>
+            <% end %>
+          </div>
+        </div>
+        <% if @meeting.meeting_type.present? %>
+          <span class="px-4 py-2 bg-white/20 backdrop-blur-sm rounded-xl text-sm font-semibold border border-white/30">
+            <%= @meeting.meeting_type %>
+          </span>
+        <% end %>
+      </div>
+      
+      <% if @meeting.notes.present? %>
+        <p class="text-purple-100 leading-relaxed"><%= @meeting.notes %></p>
+      <% end %>
+    </div>
+    
+    <div class="px-8 py-6 bg-purple-50 border-t border-purple-200">
+      <div class="flex flex-wrap gap-3">
+        <% if current_user.admin? %>
+          <%= link_to assign_speakers_admin_meeting_path(@meeting), class: "inline-flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-purple-700 to-purple-800 text-white rounded-xl font-medium hover:shadow-lg transition transform hover:scale-105" do %>
+            <span class="text-lg">👥</span>
+            Asignar Participantes
+          <% end %>
+        <% end %>
+        
+        <%= link_to edit_meeting_path(@meeting), class: "inline-flex items-center gap-2 px-5 py-2.5 bg-white border-2 border-purple-300 text-purple-800 rounded-xl font-medium hover:border-purple-400 hover:shadow-md transition" do %>
+          <span class="text-lg">✏️</span>
+          Editar Reunión
+        <% end %>
+        
+        <%= link_to meetings_path, class: "inline-flex items-center gap-2 px-5 py-2.5 bg-white border-2 border-gray-300 text-gray-700 rounded-xl font-medium hover:border-gray-400 hover:shadow-md transition" do %>
+          <span class="text-lg">👈</span>
+          Volver
+        <% end %>
+        
+        <%= link_to pdf_meeting_path(@meeting), class: "inline-flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-amber-600 to-amber-700 text-white rounded-xl font-medium hover:shadow-lg transition transform hover:scale-105", target: "_blank" do %>
+          <span class="text-lg">📄</span>
+          Ver PDF
+        <% end %>
+        
+        <% pdf_url = url_for(controller: 'meetings', action: :pdf, id: @meeting.id, only_path: false) %>
+        <% whatsapp_message = "Agenda de reunión: #{@meeting.title} - #{pdf_url}" %>
+        <%= link_to "https://wa.me/?text=#{URI.encode_www_form_component(whatsapp_message)}", target: "_blank", class: "inline-flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-emerald-600 to-emerald-700 text-white rounded-xl font-medium hover:shadow-lg transition transform hover:scale-105" do %>
+          <span class="text-lg">💬</span>
+          Enviar por WhatsApp
+        <% end %>
+      </div>
+    </div>
+  </div>
+
+  <div data-controller="drag" data-drag-meeting-id-value="<%= @meeting.id %>" data-drag-url-value="<%= reorder_meeting_schedule_items_path(@meeting) %>">
+    <div class="mb-6">
+      <div class="flex items-center justify-between mb-4">
+        <h3 class="text-2xl font-bold text-gray-900 flex items-center gap-2">
+          <span class="text-3xl">📋</span>
+          Agenda de la Reunión
+        </h3>
+        <span class="px-4 py-2 bg-gradient-to-r from-purple-100 to-rose-100 text-purple-900 rounded-xl text-sm font-semibold border border-purple-300">
+          <%= @meeting.schedule_items.select(&:persisted?).count %> items
+        </span>
+      </div>
+      <p class="text-gray-600">Arrastra los items para reordenarlos</p>
+    </div>
+
+    <div id="schedule-list" data-drag-target="list" class="space-y-3 mb-8">
+      <% if @meeting.schedule_items.select(&:persisted?).empty? %>
+        <div class="bg-gradient-to-br from-purple-50 to-rose-50 rounded-2xl p-12 text-center border-2 border-dashed border-purple-300">
+          <div class="text-6xl mb-4">📝</div>
+          <h3 class="text-xl font-semibold text-gray-700 mb-2">No hay items en la agenda</h3>
+          <p class="text-gray-500">Agrega el primer item usando el formulario de abajo</p>
+        </div>
+      <% else %>
+        <% @meeting.schedule_items.select(&:persisted?).each_with_index do |item, index| %>
+          <div data-id="<%= item.id %>" class="group bg-white rounded-xl shadow-md hover:shadow-xl transition-all duration-300 overflow-hidden border border-gray-200 hover:border-purple-400 cursor-move">
+            <div class="flex items-center p-5 gap-4">
+              <div class="flex-shrink-0 w-12 h-12 bg-gradient-to-br from-purple-800 to-rose-700 rounded-xl flex items-center justify-center text-white font-bold text-lg shadow-lg">
+                <%= index + 1 %>
+              </div>
+              
+              <div class="flex-1 min-w-0">
+                <div class="flex items-start justify-between gap-4 mb-2">
+                  <div class="flex-1">
+                    <h4 class="text-lg font-bold text-gray-900 mb-1">
+                      <%= item.role %>
+                      <% if item.speaker.present? %>
+                        <span class="text-purple-700">· <%= item.speaker %></span>
+                      <% else %>
+                        <span class="px-2 py-1 bg-amber-100 text-amber-800 text-xs font-semibold rounded-lg border border-amber-300 ml-2">Sin asignar</span>
+                      <% end %>
+                    </h4>
+                    <div class="flex flex-wrap items-center gap-3 text-sm text-gray-600">
+                      <% if item.start_time.present? %>
+                        <span class="flex items-center gap-1 px-3 py-1 bg-purple-50 rounded-lg border border-purple-300">
+                          <span>🕐</span>
+                          <span class="font-semibold"><%= item.start_time.strftime("%H:%M") %></span>
+                        </span>
+                      <% end %>
+                      <span class="flex items-center gap-1 px-3 py-1 bg-amber-50 rounded-lg border border-amber-300">
+                        <span>⏱️</span>
+                        <span class="font-semibold"><%= item.duration_display %></span>
+                      </span>
+                    </div>
+                  </div>
+                  
+                  <div class="flex items-center gap-2">
+                    <span class="text-2xl opacity-0 group-hover:opacity-100 transition">↕️</span>
+                    <%= button_to meeting_schedule_item_path(@meeting, item), method: :delete, data: { confirm: "¿Eliminar este item?" }, class: "p-2 text-rose-700 hover:bg-rose-50 rounded-lg transition" do %>
+                      <span class="text-xl">🗑️</span>
+                    <% end %>
+                  </div>
+                </div>
+                
+                <% if item.notes.present? %>
+                  <p class="text-sm text-gray-600 mt-2 pl-4 border-l-2 border-purple-300 leading-relaxed">
+                    <%= item.notes %>
+                  </p>
+                <% end %>
+              </div>
+            </div>
+          </div>
+        <% end %>
+      <% end %>
+    </div>
+
+    <div class="bg-white rounded-2xl shadow-xl p-8 border border-gray-100">
+      <div class="flex items-center gap-3 mb-6">
+        <span class="text-3xl">➕</span>
+        <h4 class="text-2xl font-bold text-gray-900">Agregar Item a la Agenda</h4>
+      </div>
+      
+      <%= form_with model: [@meeting, @schedule_item], local: true, class: "space-y-6" do |f| %>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div>
+            <%= f.label :start_time, "Hora de Inicio", class: "block text-sm font-bold text-gray-700 mb-2" %>
+            <div class="relative">
+              <%= f.time_field :start_time, class: "w-full px-4 py-3 border-2 border-purple-300 rounded-xl focus:ring-4 focus:ring-purple-100 focus:border-purple-600 transition text-lg font-semibold", placeholder: "19:00" %>
+              <span class="absolute right-4 top-1/2 -translate-y-1/2 text-xl">🕐</span>
+            </div>
+          </div>
+          
+          <div>
+            <%= f.label :duration_minutes, "Duración (minutos)", class: "block text-sm font-bold text-gray-700 mb-2" %>
+            <div class="relative">
+              <%= f.number_field :duration_minutes, class: "w-full px-4 py-3 border-2 border-purple-300 rounded-xl focus:ring-4 focus:ring-purple-100 focus:border-purple-600 transition text-lg font-semibold", value: 10, min: 1 %>
+              <span class="absolute right-4 top-1/2 -translate-y-1/2 text-xl">⏱️</span>
+            </div>
+          </div>
+          
+          <div>
+            <%= f.label :role, "Rol / Parte", class: "block text-sm font-bold text-gray-700 mb-2" %>
+            <div class="relative">
+              <%= f.text_field :role, class: "w-full px-4 py-3 border-2 border-purple-300 rounded-xl focus:ring-4 focus:ring-purple-100 focus:border-purple-600 transition", placeholder: "Ej: Presidente, Lector, Primera conversación..." %>
+              <span class="absolute right-4 top-1/2 -translate-y-1/2 text-xl">👔</span>
+            </div>
+          </div>
+          
+          <div>
+            <%= f.label :speaker, "Asignado a", class: "block text-sm font-bold text-gray-700 mb-2" %>
+            <div class="relative">
+              <%= f.text_field :speaker, class: "w-full px-4 py-3 border-2 border-purple-300 rounded-xl focus:ring-4 focus:ring-purple-100 focus:border-purple-600 transition", placeholder: "Nombre del hermano" %>
+              <span class="absolute right-4 top-1/2 -translate-y-1/2 text-xl">👤</span>
+            </div>
+          </div>
+          
+          <div class="md:col-span-2">
+            <%= f.label :notes, "Notas adicionales", class: "block text-sm font-bold text-gray-700 mb-2" %>
+            <%= f.text_area :notes, rows: 3, class: "w-full px-4 py-3 border-2 border-purple-300 rounded-xl focus:ring-4 focus:ring-purple-100 focus:border-purple-600 transition", placeholder: "Información adicional sobre este item..." %>
+          </div>
+        </div>
+        
+        <div class="pt-4">
+          <%= f.submit "Agregar Item", class: "w-full md:w-auto px-8 py-4 bg-gradient-to-r from-purple-800 to-purple-700 text-white rounded-xl font-bold text-lg hover:shadow-2xl transition transform hover:scale-105 cursor-pointer" %>
+        </div>
+      <% end %>
+    </div>
+  </div>
+</div>

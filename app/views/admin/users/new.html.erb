@@ -1,0 +1,15 @@
+<div class="max-w-3xl mx-auto">
+  <div class="mb-8">
+    <div class="flex items-center gap-3 mb-2">
+      <span class="text-4xl">➕</span>
+      <h2 class="text-4xl font-bold bg-gradient-to-r from-purple-800 to-rose-700 bg-clip-text text-transparent">
+        Nuevo Usuario
+      </h2>
+    </div>
+    <p class="text-gray-600">Agrega un nuevo usuario al sistema</p>
+  </div>
+  
+  <div class="bg-white shadow-2xl rounded-2xl p-8 border border-purple-100">
+    <%= render "form", user: @user %>
+  </div>
+</div>

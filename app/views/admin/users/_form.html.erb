@@ -1,0 +1,73 @@
+<%= form_with(model: [:admin, user], local: true, class: "space-y-6") do |form| %>
+  <% if user.errors.any? %>
+    <div class="bg-rose-50 border-l-4 border-rose-600 rounded-lg p-4">
+      <div class="flex items-start">
+        <span class="text-2xl mr-3">⚠️</span>
+        <div>
+          <h2 class="font-bold text-rose-900 mb-2">
+            <%= pluralize(user.errors.count, "error") %> impidieron guardar:
+          </h2>
+          <ul class="list-disc list-inside text-rose-800 space-y-1">
+            <% user.errors.full_messages.each do |message| %>
+              <li><%= message %></li>
+            <% end %>
+          </ul>
+        </div>
+      </div>
+    </div>
+  <% end %>
+
+  <div>
+    <%= form.label :email, "Email", class: "block text-sm font-bold text-gray-700 mb-2" %>
+    <div class="relative">
+      <%= form.email_field :email, class: "w-full px-4 py-3 border-2 border-purple-300 rounded-xl focus:ring-4 focus:ring-purple-100 focus:border-purple-600 transition text-lg", placeholder: "usuario@ejemplo.com" %>
+      <span class="absolute right-4 top-1/2 -translate-y-1/2 text-xl">📧</span>
+    </div>
+  </div>
+
+  <div>
+    <%= form.label :name, "Nombre Completo", class: "block text-sm font-bold text-gray-700 mb-2" %>
+    <div class="relative">
+      <%= form.text_field :name, class: "w-full px-4 py-3 border-2 border-purple-300 rounded-xl focus:ring-4 focus:ring-purple-100 focus:border-purple-600 transition text-lg", placeholder: "Juan Pérez" %>
+      <span class="absolute right-4 top-1/2 -translate-y-1/2 text-xl">👤</span>
+    </div>
+  </div>
+
+  <div>
+    <%= form.label :role, "Rol", class: "block text-sm font-bold text-gray-700 mb-2" %>
+    <div class="relative">
+      <%= form.select :role, 
+          options_for_select([
+            ["👤 Miembro", "member"], 
+            ["⭐ Administrador", "admin"]
+          ], user.role), 
+          {}, 
+          class: "w-full px-4 py-3 border-2 border-purple-300 rounded-xl focus:ring-4 focus:ring-purple-100 focus:border-purple-600 transition appearance-none bg-white text-lg font-semibold" %>
+      <span class="absolute right-4 top-1/2 -translate-y-1/2 text-xl pointer-events-none">🏷️</span>
+    </div>
+  </div>
+
+  <div>
+    <%= form.label :password, "Contraseña", class: "block text-sm font-bold text-gray-700 mb-2" %>
+    <div class="relative">
+      <%= form.password_field :password, class: "w-full px-4 py-3 border-2 border-purple-300 rounded-xl focus:ring-4 focus:ring-purple-100 focus:border-purple-600 transition text-lg", placeholder: user.persisted? ? "Dejar en blanco para no cambiar" : "Mínimo 6 caracteres" %>
+      <span class="absolute right-4 top-1/2 -translate-y-1/2 text-xl">🔒</span>
+    </div>
+    <% if user.persisted? %>
+      <p class="text-sm text-gray-500 mt-1">Deja este campo en blanco si no deseas cambiar la contraseña</p>
+    <% end %>
+  </div>
+
+  <div>
+    <%= form.label :password_confirmation, "Confirmar Contraseña", class: "block text-sm font-bold text-gray-700 mb-2" %>
+    <div class="relative">
+      <%= form.password_field :password_confirmation, class: "w-full px-4 py-3 border-2 border-purple-300 rounded-xl focus:ring-4 focus:ring-purple-100 focus:border-purple-600 transition text-lg", placeholder: "Repite la contraseña" %>
+      <span class="absolute right-4 top-1/2 -translate-y-1/2 text-xl">🔒</span>
+    </div>
+  </div>
+
+  <div class="flex gap-3 pt-4">
+    <%= form.submit "Guardar Usuario", class: "flex-1 md:flex-none px-8 py-4 bg-gradient-to-r from-purple-800 to-purple-700 text-white rounded-xl font-bold text-lg hover:shadow-2xl transition transform hover:scale-105 cursor-pointer" %>
+    <%= link_to "Cancelar", admin_users_path, class: "flex-1 md:flex-none px-8 py-4 bg-white border-2 border-gray-300 text-gray-700 rounded-xl font-bold text-lg hover:border-gray-400 hover:shadow-md transition text-center" %>
+  </div>
+<% end %>

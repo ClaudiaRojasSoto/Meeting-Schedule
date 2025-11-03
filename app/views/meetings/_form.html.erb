@@ -1,0 +1,68 @@
+<%= form_with(model: meeting, local: true, class: "space-y-6") do |form| %>
+  <% if meeting.errors.any? %>
+    <div class="bg-rose-50 border-l-4 border-rose-600 rounded-lg p-4">
+      <div class="flex items-start">
+        <span class="text-2xl mr-3">⚠️</span>
+        <div>
+          <h2 class="font-bold text-rose-900 mb-2">
+            <%= pluralize(meeting.errors.count, "error") %> impidieron guardar:
+          </h2>
+          <ul class="list-disc list-inside text-rose-800 space-y-1">
+            <% meeting.errors.full_messages.each do |message| %>
+              <li><%= message %></li>
+            <% end %>
+          </ul>
+        </div>
+      </div>
+    </div>
+  <% end %>
+
+  <div>
+    <%= form.label :title, "Título de la Reunión", class: "block text-sm font-bold text-gray-700 mb-2" %>
+    <div class="relative">
+      <%= form.text_field :title, class: "w-full px-4 py-3 border-2 border-purple-300 rounded-xl focus:ring-4 focus:ring-purple-100 focus:border-purple-600 transition text-lg", placeholder: "Reunión Vida y Ministerio Cristianos" %>
+      <span class="absolute right-4 top-1/2 -translate-y-1/2 text-xl">📋</span>
+    </div>
+  </div>
+
+  <div>
+    <%= form.label :date, "Fecha", class: "block text-sm font-bold text-gray-700 mb-2" %>
+    <div class="relative">
+      <%= form.date_field :date, class: "w-full px-4 py-3 border-2 border-purple-300 rounded-xl focus:ring-4 focus:ring-purple-100 focus:border-purple-600 transition text-lg font-semibold" %>
+      <span class="absolute right-4 top-1/2 -translate-y-1/2 text-xl">📅</span>
+    </div>
+  </div>
+
+  <div>
+    <%= form.label :location, "Lugar", class: "block text-sm font-bold text-gray-700 mb-2" %>
+    <div class="relative">
+      <%= form.text_field :location, class: "w-full px-4 py-3 border-2 border-purple-300 rounded-xl focus:ring-4 focus:ring-purple-100 focus:border-purple-600 transition", placeholder: "Salón del Reino" %>
+      <span class="absolute right-4 top-1/2 -translate-y-1/2 text-xl">📍</span>
+    </div>
+  </div>
+
+  <div>
+    <%= form.label :meeting_type, "Tipo de Reunión", class: "block text-sm font-bold text-gray-700 mb-2" %>
+    <div class="relative">
+      <%= form.select :meeting_type, 
+          options_for_select([
+            ["Entre Semana", "Entre Semana"], 
+            ["Fin de Semana", "Fin de Semana"], 
+            ["Asamblea", "Asamblea"]
+          ], meeting.meeting_type), 
+          { include_blank: "Seleccionar tipo" }, 
+          class: "w-full px-4 py-3 border-2 border-purple-300 rounded-xl focus:ring-4 focus:ring-purple-100 focus:border-purple-600 transition appearance-none bg-white" %>
+      <span class="absolute right-4 top-1/2 -translate-y-1/2 text-xl pointer-events-none">🏷️</span>
+    </div>
+  </div>
+
+  <div>
+    <%= form.label :notes, "Notas", class: "block text-sm font-bold text-gray-700 mb-2" %>
+    <%= form.text_area :notes, rows: 4, class: "w-full px-4 py-3 border-2 border-purple-300 rounded-xl focus:ring-4 focus:ring-purple-100 focus:border-purple-600 transition", placeholder: "Información adicional sobre la reunión..." %>
+  </div>
+
+  <div class="flex gap-3 pt-4">
+    <%= form.submit "Guardar Reunión", class: "flex-1 md:flex-none px-8 py-4 bg-gradient-to-r from-purple-800 to-purple-700 text-white rounded-xl font-bold text-lg hover:shadow-2xl transition transform hover:scale-105 cursor-pointer" %>
+    <%= link_to "Cancelar", meetings_path, class: "flex-1 md:flex-none px-8 py-4 bg-white border-2 border-gray-300 text-gray-700 rounded-xl font-bold text-lg hover:border-gray-400 hover:shadow-md transition text-center" %>
+  </div>
+<% end %>

@@ -1,0 +1,98 @@
+<div class="max-w-5xl mx-auto">
+  <div class="mb-8">
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+      <div>
+        <h2 class="text-4xl font-bold bg-gradient-to-r from-purple-800 to-rose-700 bg-clip-text text-transparent mb-2">
+          Próximas Reuniones
+        </h2>
+        <p class="text-gray-600">Gestiona y organiza todas tus reuniones</p>
+      </div>
+      <div class="flex flex-col sm:flex-row gap-2">
+        <% if current_user.admin? %>
+          <%= link_to import_from_text_admin_meetings_path, class: "inline-flex items-center justify-center px-4 py-3 bg-gradient-to-r from-amber-600 to-amber-700 text-white rounded-xl font-semibold shadow-lg hover:shadow-xl transform hover:scale-105 transition duration-200" do %>
+            <span class="text-xl mr-2">📋</span>
+            Importar desde JW.org
+          <% end %>
+        <% end %>
+        <%= link_to new_meeting_path, class: "inline-flex items-center justify-center px-6 py-3 bg-gradient-to-r from-purple-800 to-purple-700 text-white rounded-xl font-semibold shadow-lg hover:shadow-xl transform hover:scale-105 transition duration-200" do %>
+          <span class="text-xl mr-2">➕</span>
+          Nueva Reunión
+        <% end %>
+      </div>
+    </div>
+  </div>
+
+  <% if @meetings.empty? %>
+    <div class="bg-white rounded-2xl shadow-xl p-12 text-center border border-purple-100">
+      <div class="text-6xl mb-4">📅</div>
+      <h3 class="text-2xl font-semibold text-gray-800 mb-2">No hay reuniones programadas</h3>
+      <p class="text-gray-500 mb-6">Comienza creando tu primera reunión</p>
+      <%= link_to "Crear Primera Reunión", new_meeting_path, class: "inline-flex items-center px-6 py-3 bg-gradient-to-r from-purple-800 to-purple-700 text-white rounded-xl font-medium hover:shadow-lg transition" %>
+    </div>
+  <% else %>
+    <div class="grid gap-4 md:gap-6">
+      <% @meetings.each do |meeting| %>
+        <div class="group bg-white rounded-2xl shadow-md hover:shadow-2xl transition-all duration-300 overflow-hidden border border-gray-100 hover:border-purple-300">
+          <div class="p-6">
+            <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+              <div class="flex-1">
+                <div class="flex items-start gap-4">
+                  <div class="flex-shrink-0 w-16 h-16 bg-gradient-to-br from-purple-800 to-rose-700 rounded-xl flex flex-col items-center justify-center text-white shadow-lg">
+                    <span class="text-xs font-medium uppercase"><%= meeting.date.strftime("%b") %></span>
+                    <span class="text-2xl font-bold"><%= meeting.date.strftime("%d") %></span>
+                  </div>
+                  
+                  <div class="flex-1 min-w-0">
+                    <%= link_to meeting_path(meeting), class: "block group-hover:text-purple-700 transition" do %>
+                      <h3 class="text-xl font-bold text-gray-900 mb-1 group-hover:text-purple-700 transition">
+                        <%= meeting.title %>
+                      </h3>
+                    <% end %>
+                    
+                    <div class="flex flex-wrap items-center gap-3 text-sm text-gray-600 mb-2">
+                      <span class="flex items-center gap-1">
+                        <span class="text-base">🕒</span>
+                        <%= meeting.date.strftime("%A, %d de %B de %Y") %>
+                      </span>
+                      <% if meeting.location.present? %>
+                        <span class="flex items-center gap-1">
+                          <span class="text-base">📍</span>
+                          <%= meeting.location %>
+                        </span>
+                      <% end %>
+                    </div>
+                    
+                    <% if meeting.meeting_type.present? %>
+                      <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-gradient-to-r from-purple-100 to-rose-100 text-purple-900 border border-purple-300">
+                        <%= meeting.meeting_type %>
+                      </span>
+                    <% end %>
+                    
+                    <% if meeting.schedule_items.select(&:persisted?).any? %>
+                      <div class="mt-3 flex items-center gap-2 text-sm text-gray-500">
+                        <span class="text-base">📝</span>
+                        <span><%= meeting.schedule_items.select(&:persisted?).count %> items en la agenda</span>
+                      </div>
+                    <% end %>
+                  </div>
+                </div>
+              </div>
+              
+              <div class="flex lg:flex-col gap-2">
+                <%= link_to meeting_path(meeting), class: "flex items-center justify-center gap-2 px-4 py-2 bg-gradient-to-r from-purple-50 to-purple-100 text-purple-800 rounded-lg font-medium text-sm hover:from-purple-100 hover:to-purple-200 transition border border-purple-300" do %>
+                  👁️ Ver
+                <% end %>
+                <%= link_to edit_meeting_path(meeting), class: "flex items-center justify-center gap-2 px-4 py-2 bg-gradient-to-r from-amber-50 to-amber-100 text-amber-800 rounded-lg font-medium text-sm hover:from-amber-100 hover:to-amber-200 transition border border-amber-300" do %>
+                  ✏️ Editar
+                <% end %>
+                <%= button_to meeting_path(meeting), method: :delete, data: { confirm: "¿Estás seguro de eliminar esta reunión?" }, class: "flex items-center justify-center gap-2 px-4 py-2 bg-gradient-to-r from-rose-50 to-rose-100 text-rose-800 rounded-lg font-medium text-sm hover:from-rose-100 hover:to-rose-200 transition border border-rose-300" do %>
+                  🗑️ Eliminar
+                <% end %>
+              </div>
+            </div>
+          </div>
+        </div>
+      <% end %>
+    </div>
+  <% end %>
+</div>

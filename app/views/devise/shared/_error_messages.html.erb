@@ -1,0 +1,20 @@
+<% if resource.errors.any? %>
+  <div class="bg-rose-50 border-l-4 border-rose-600 rounded-lg p-4 mb-6">
+    <div class="flex items-start">
+      <span class="text-2xl mr-3">⚠️</span>
+      <div>
+        <h2 class="font-bold text-rose-900 mb-2">
+          <%= I18n.t("errors.messages.not_saved",
+                     count: resource.errors.count,
+                     resource: resource.class.model_name.human.downcase)
+           %>
+        </h2>
+        <ul class="list-disc list-inside text-rose-800 space-y-1">
+          <% resource.errors.full_messages.each do |message| %>
+            <li><%= message %></li>
+          <% end %>
+        </ul>
+      </div>
+    </div>
+  </div>
+<% end %>
